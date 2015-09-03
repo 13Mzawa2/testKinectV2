@@ -1,0 +1,40 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.21005.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "testKinectV2", "testKinectV2\testKinectV2.vcxproj", "{E827692E-BDB4-4EF5-B066-0612111EDD0D}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GetDepth", "GetDepth\GetDepth.vcxproj", "{CC8C7D17-1EC0-4CF7-9812-BC375F7764ED}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CoordinateMapping", "CoordinateMapping\CoordinateMapping.vcxproj", "{A321919B-4F0F-4BC8-B8DC-58FC61CB6227}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "testPCL", "testPCL\testPCL.vcxproj", "{06ED8D4C-1951-4E82-85C9-4182661A4AF0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E827692E-BDB4-4EF5-B066-0612111EDD0D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{E827692E-BDB4-4EF5-B066-0612111EDD0D}.Debug|Win32.Build.0 = Debug|Win32
+		{E827692E-BDB4-4EF5-B066-0612111EDD0D}.Release|Win32.ActiveCfg = Release|Win32
+		{E827692E-BDB4-4EF5-B066-0612111EDD0D}.Release|Win32.Build.0 = Release|Win32
+		{CC8C7D17-1EC0-4CF7-9812-BC375F7764ED}.Debug|Win32.ActiveCfg = Debug|Win32
+		{CC8C7D17-1EC0-4CF7-9812-BC375F7764ED}.Debug|Win32.Build.0 = Debug|Win32
+		{CC8C7D17-1EC0-4CF7-9812-BC375F7764ED}.Release|Win32.ActiveCfg = Release|Win32
+		{CC8C7D17-1EC0-4CF7-9812-BC375F7764ED}.Release|Win32.Build.0 = Release|Win32
+		{A321919B-4F0F-4BC8-B8DC-58FC61CB6227}.Debug|Win32.ActiveCfg = Debug|Win32
+		{A321919B-4F0F-4BC8-B8DC-58FC61CB6227}.Debug|Win32.Build.0 = Debug|Win32
+		{A321919B-4F0F-4BC8-B8DC-58FC61CB6227}.Release|Win32.ActiveCfg = Release|Win32
+		{A321919B-4F0F-4BC8-B8DC-58FC61CB6227}.Release|Win32.Build.0 = Release|Win32
+		{06ED8D4C-1951-4E82-85C9-4182661A4AF0}.Debug|Win32.ActiveCfg = Debug|Win32
+		{06ED8D4C-1951-4E82-85C9-4182661A4AF0}.Debug|Win32.Build.0 = Debug|Win32
+		{06ED8D4C-1951-4E82-85C9-4182661A4AF0}.Release|Win32.ActiveCfg = Release|Win32
+		{06ED8D4C-1951-4E82-85C9-4182661A4AF0}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
