@@ -45,6 +45,7 @@
 #pragma endregion
 
 //	インクルード
+#pragma region Includes
 #include <pcl\point_types.h>
 #include <pcl\common\io.h>
 #include <pcl\io\pcd_io.h>
@@ -54,8 +55,9 @@
 #include <pcl\features\fpfh.h>
 #include <pcl\features\normal_3d.h>
 #include <pcl/segmentation/sac_segmentation.h>		//	平面検出
-
+#pragma endregion
 // ビルドモード
+#pragma region Build Mode
 #ifdef _DEBUG
 #define PCL_EXT_STR "_debug.lib"
 #define PCL_BOOST_EXT_STR "-vc120-mt-gd-1_57.lib"
@@ -69,7 +71,7 @@
 #define PCL_QHULL_EXT_STR ".lib"
 #define PCL_VTK_EXT_STR "-6.2.lib"
 #endif
-
+#pragma endregion
 // ライブラリのリンク（不要な物はコメントアウト）
 #pragma region PCL Linker Script
 #pragma comment(lib, "pcl_common"			PCL_EXT_STR)

@@ -20,11 +20,11 @@
 #define matG(IMG,X,Y)		((IMG).data[((IMG).step*(Y) + (IMG).channels()*(X)) + 1])
 #define matR(IMG,X,Y)		((IMG).data[((IMG).step*(Y) + (IMG).channels()*(X)) + 2])
 #define matGRAY(IMG,X,Y)	matB(IMG,X,Y)
-#define matBf(IMG,X,Y)		(((Point3f*)((IMG).data + (IMG).step.p[0] * Y))[X].x)
-#define matGf(IMG,X,Y)		(((Point3f*)((IMG).data + (IMG).step.p[0] * Y))[X].y)
-#define matRf(IMG,X,Y)		(((Point3f*)((IMG).data + (IMG).step.p[0] * Y))[X].z)
-#define matBd(IMG,X,Y)		(((Point3d*)((IMG).data + (IMG).step.p[0] * Y))[X].x)
-#define matGd(IMG,X,Y)		(((Point3d*)((IMG).data + (IMG).step.p[0] * Y))[X].y)
-#define matRd(IMG,X,Y)		(((Point3d*)((IMG).data + (IMG).step.p[0] * Y))[X].z)
+#define matBf(IMG,X,Y)		(((cv::Point3f*)((IMG).data + (IMG).step.p[0] * Y))[X].x)
+#define matGf(IMG,X,Y)		(((cv::Point3f*)((IMG).data + (IMG).step.p[0] * Y))[X].y)
+#define matRf(IMG,X,Y)		(((cv::Point3f*)((IMG).data + (IMG).step.p[0] * Y))[X].z)
+#define matBd(IMG,X,Y)		(((cv::Point3d*)((IMG).data + (IMG).step.p[0] * Y))[X].x)
+#define matGd(IMG,X,Y)		(((cv::Point3d*)((IMG).data + (IMG).step.p[0] * Y))[X].y)
+#define matRd(IMG,X,Y)		(((cv::Point3d*)((IMG).data + (IMG).step.p[0] * Y))[X].z)
 
 #pragma endregion

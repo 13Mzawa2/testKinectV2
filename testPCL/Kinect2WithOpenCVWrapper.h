@@ -32,10 +32,12 @@ protected:
 	IColorFrameSource *colorSource;
 	IColorFrameReader *colorReader;
 	IFrameDescription *colorDescription;
+	IColorFrame *colorFrame;
 	//	for depth buffer
 	IDepthFrameSource *depthSource;
 	IDepthFrameReader *depthReader;
 	IFrameDescription *depthDescription;
+	IDepthFrame *depthFrame;
 	//	mapping engine
 	ICoordinateMapper *mapper;
 	//	OpenCV Buffer Size
@@ -48,7 +50,8 @@ public:
 	//	OpenCV Image Buffer
 	cv::Mat colorBuffer;		//	1920 x 1080, 8UC4
 	cv::Mat depthBuffer;		//	512 x 424, 16UC1
-	
+	cv::Mat xyzBuffer;			//	512 x 424, 32FC3
+	cv::Mat coordColorBuffer;	//	512 x 424, 8UC4
 
 	Kinect2WithOpenCVWrapper()
 	{
@@ -143,7 +146,7 @@ public:
 	inline void getColorFrame(cv::Mat &colorImg)
 	{
 		colorImg = cv::Mat(colorBufferSize, CV_8UC4);
-		IColorFrame *colorFrame = nullptr;
+		colorFrame = nullptr;
 		//	Colorフレーム取得
 		if (SUCCEEDED(colorReader->AcquireLatestFrame(&colorFrame)))
 		{	//	ColorフレームからデータをOpenCV側バッファにコピー
@@ -155,7 +158,6 @@ public:
 				flip(colorBuffer, colorImg, 1);		//	左右反転
 			}
 		}
-		safeRelease(colorFrame);
 	}
 
 	//------------------------------------------------
@@ -164,7 +166,7 @@ public:
 	inline void getDepthFrame(cv::Mat &depthImg)
 	{
 		depthImg = cv::Mat(depthBufferSize, CV_16UC1);
-		IDepthFrame *depthFrame = nullptr;
+		depthFrame = nullptr;
 		//	Depthフレーム取得
 		if (SUCCEEDED(depthReader->AcquireLatestFrame(&depthFrame)))
 		{	//	DepthフレームからデータをOpenCV側バッファにコピー
@@ -175,13 +177,78 @@ public:
 				flip(depthBuffer, depthImg, 1);		//	左右反転
 			}
 		}
-		safeRelease(depthFrame);
 	}
 
+	//------------------------------------------------
+	//	mapperによってずれを修正したcolorImgを渡す
+	//------------------------------------------------
+	inline void getCoordinatedColorFrame(cv::Mat &coordColorImg)
+	{
+		coordColorBuffer = cv::Mat(depthBufferSize, CV_8UC4);
+		if (!colorBuffer.empty() && !depthBuffer.empty())
+		{
+			std::vector<ColorSpacePoint> colorSpacePoints(depthBuffer.total());
+			if (SUCCEEDED(mapper->MapDepthFrameToColorSpace(
+				depthBuffer.total(), reinterpret_cast<UINT16*>(depthBuffer.data),
+				depthBuffer.total(), &colorSpacePoints[0])))
+			{
+				coordColorBuffer = cv::Scalar(0);
+				for (int y = 0; y < depthBuffer.rows; y++)
+				{
+					for (int x = 0; x < depthBuffer.cols; x++)
+					{
+						unsigned int idx = y * depthBuffer.cols + x;
+						cv::Point colorLoc(
+							static_cast<int>(floor(colorSpacePoints[idx].X + 0.5)),
+							static_cast<int>(floor(colorSpacePoints[idx].Y + 0.5)));		//	四捨五入のため0.5を足す
+						if (colorLoc.x >= 0 && colorLoc.x < colorBuffer.cols
+							&& colorLoc.y >= 0 && colorLoc.y < colorBuffer.rows)
+							coordColorBuffer.at<cv::Vec4b>(y, x) = colorBuffer.at<cv::Vec4b>(colorLoc);
+					}
+				}
+				coordColorImg = coordColorBuffer.clone();
+			}
+		}
+	}
+
+	//------------------------------------------------
+	//	DepthカメラからXYZ座標を復元
+	//------------------------------------------------
+	inline void getXYZFrame(cv::Mat &xyzMat)
+	{
+		xyzBuffer = cv::Mat(depthBuffer.size(), CV_32FC3);
+		if (!colorBuffer.empty() && !depthBuffer.empty())
+		{
+			std::vector<CameraSpacePoint> xyzPoints(depthBuffer.total());
+			if (SUCCEEDED(mapper->MapDepthFrameToCameraSpace(
+				depthBuffer.total(), reinterpret_cast<UINT16*>(depthBuffer.data),
+				depthBuffer.total(), &xyzPoints[0])))
+			{
+				for (int y = 0; y < depthBuffer.rows; y++)
+				{
+					for (int x = 0; x < depthBuffer.cols; x++)
+					{
+						int idx = y * depthBuffer.cols + x;
+						xyzBuffer.at<cv::Vec3f>(y, x)[0] = xyzPoints[idx].X;
+						xyzBuffer.at<cv::Vec3f>(y, x)[1] = xyzPoints[idx].Y;
+						xyzBuffer.at<cv::Vec3f>(y, x)[2] = xyzPoints[idx].Z;
+					}
+				}
+				xyzMat = xyzBuffer.clone();
+			}
+		}
+	}
 
 	virtual ~Kinect2WithOpenCVWrapper()
 	{
 		releaseAllInterface();
+	}
+
+	//	フレームの解放（次フレームの待機）
+	inline void releaseFrames()
+	{
+		safeRelease(depthFrame);
+		safeRelease(colorFrame);
 	}
 
 	inline void releaseAllInterface()
