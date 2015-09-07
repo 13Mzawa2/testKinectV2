@@ -48,10 +48,10 @@ protected:
 
 public:
 	//	OpenCV Image Buffer
-	cv::Mat colorBuffer;		//	1920 x 1080, 8UC4
-	cv::Mat depthBuffer;		//	512 x 424, 16UC1
-	cv::Mat xyzBuffer;			//	512 x 424, 32FC3
-	cv::Mat coordColorBuffer;	//	512 x 424, 8UC4
+	cv::Mat colorBuffer;		//	1920 x 1080, BGRA, 8UC4
+	cv::Mat depthBuffer;		//	512 x 424, Gray, 16UC1
+	cv::Mat xyzBuffer;			//	512 x 424, XYZ, 32FC3
+	cv::Mat coordColorBuffer;	//	512 x 424, BGRA, 8UC4
 
 	Kinect2WithOpenCVWrapper()
 	{
@@ -145,17 +145,24 @@ public:
 	//------------------------------------------------
 	inline void getColorFrame(cv::Mat &colorImg)
 	{
-		colorImg = cv::Mat(colorBufferSize, CV_8UC4);
+		colorImg = cv::Mat(colorBufferSize, CV_8UC3);	//	渡す時に 3 channels に変更
+		getColorFrame();
+		cv::cvtColor(colorBuffer, colorImg, CV_BGRA2BGR);
+		flip(colorImg, colorImg, 1);		//	左右反転
+	}
+	inline void getColorFrame(void)
+	{
 		colorFrame = nullptr;
+		cv::Mat buffer(colorBufferSize, CV_8UC4);
 		//	Colorフレーム取得
 		if (SUCCEEDED(colorReader->AcquireLatestFrame(&colorFrame)))
-		{	//	ColorフレームからデータをOpenCV側バッファにコピー
+		{	//	Colorフレームからデータを取得できたらOpenCV側バッファにコピー
 			if (SUCCEEDED(colorFrame->CopyConvertedFrameDataToArray(
 				colorBufferBlockSize,
-				reinterpret_cast<BYTE*>(colorBuffer.data),
+				reinterpret_cast<BYTE*>(buffer.data),
 				ColorImageFormat_Bgra)))
 			{
-				flip(colorBuffer, colorImg, 1);		//	左右反転
+				buffer.copyTo(colorBuffer);
 			}
 		}
 	}
@@ -166,15 +173,21 @@ public:
 	inline void getDepthFrame(cv::Mat &depthImg)
 	{
 		depthImg = cv::Mat(depthBufferSize, CV_16UC1);
+		getDepthFrame();
+		flip(depthBuffer, depthImg, 1);		//	左右反転
+	}
+	inline void getDepthFrame(void)
+	{
 		depthFrame = nullptr;
+		cv::Mat buffer(depthBufferSize, CV_16UC1);
 		//	Depthフレーム取得
 		if (SUCCEEDED(depthReader->AcquireLatestFrame(&depthFrame)))
 		{	//	DepthフレームからデータをOpenCV側バッファにコピー
 			if (SUCCEEDED(depthFrame->AccessUnderlyingBuffer(
 				&depthBufferBlockSize,
-				reinterpret_cast<UINT16**>(&depthBuffer.data))))
+				reinterpret_cast<UINT16**>(&buffer.data))))
 			{
-				flip(depthBuffer, depthImg, 1);		//	左右反転
+				buffer.copyTo(depthBuffer);
 			}
 		}
 	}
@@ -184,15 +197,21 @@ public:
 	//------------------------------------------------
 	inline void getCoordinatedColorFrame(cv::Mat &coordColorImg)
 	{
-		coordColorBuffer = cv::Mat(depthBufferSize, CV_8UC4);
+		coordColorImg = cv::Mat(depthBufferSize, CV_8UC3);
+		getCoordinatedColorFrame();
+		cv::cvtColor(coordColorBuffer, coordColorImg, CV_BGRA2BGR);
+	}
+	inline void getCoordinatedColorFrame(void)
+	{
+		cv::Mat buffer = cv::Mat(depthBufferSize, CV_8UC4);
 		if (!colorBuffer.empty() && !depthBuffer.empty())
 		{
 			std::vector<ColorSpacePoint> colorSpacePoints(depthBuffer.total());
 			if (SUCCEEDED(mapper->MapDepthFrameToColorSpace(
-				depthBuffer.total(), reinterpret_cast<UINT16*>(depthBuffer.data),
-				depthBuffer.total(), &colorSpacePoints[0])))
+				depthBuffer.total(), reinterpret_cast<UINT16*>(depthBuffer.data),		//	取得したデプスバッファ
+				depthBuffer.total(), &colorSpacePoints[0])))							//	depth -> color変換LUT
 			{
-				coordColorBuffer = cv::Scalar(0);
+				buffer = cv::Scalar(0);
 				for (int y = 0; y < depthBuffer.rows; y++)
 				{
 					for (int x = 0; x < depthBuffer.cols; x++)
@@ -203,10 +222,10 @@ public:
 							static_cast<int>(floor(colorSpacePoints[idx].Y + 0.5)));		//	四捨五入のため0.5を足す
 						if (colorLoc.x >= 0 && colorLoc.x < colorBuffer.cols
 							&& colorLoc.y >= 0 && colorLoc.y < colorBuffer.rows)
-							coordColorBuffer.at<cv::Vec4b>(y, x) = colorBuffer.at<cv::Vec4b>(colorLoc);
+							buffer.at<cv::Vec4b>(idx) = colorBuffer.at<cv::Vec4b>(colorLoc);	//	LUTに従いバッファに保存
 					}
 				}
-				coordColorImg = coordColorBuffer.clone();
+				buffer.copyTo(coordColorBuffer);
 			}
 		}
 	}
@@ -216,7 +235,13 @@ public:
 	//------------------------------------------------
 	inline void getXYZFrame(cv::Mat &xyzMat)
 	{
-		xyzBuffer = cv::Mat(depthBuffer.size(), CV_32FC3);
+		xyzMat = cv::Mat(depthBufferSize, CV_32FC3);		//	(x, y, z) float精度
+		getXYZFrame();
+		xyzBuffer.copyTo(xyzMat);
+	}
+	inline void getXYZFrame(void)
+	{
+		cv::Mat buffer = cv::Mat(depthBuffer.size(), CV_32FC3);
 		if (!colorBuffer.empty() && !depthBuffer.empty())
 		{
 			std::vector<CameraSpacePoint> xyzPoints(depthBuffer.total());
@@ -229,12 +254,12 @@ public:
 					for (int x = 0; x < depthBuffer.cols; x++)
 					{
 						int idx = y * depthBuffer.cols + x;
-						xyzBuffer.at<cv::Vec3f>(y, x)[0] = xyzPoints[idx].X;
-						xyzBuffer.at<cv::Vec3f>(y, x)[1] = xyzPoints[idx].Y;
-						xyzBuffer.at<cv::Vec3f>(y, x)[2] = xyzPoints[idx].Z;
+						buffer.at<cv::Vec3f>(idx)[0] = xyzPoints[idx].X;
+						buffer.at<cv::Vec3f>(idx)[1] = xyzPoints[idx].Y;
+						buffer.at<cv::Vec3f>(idx)[2] = xyzPoints[idx].Z;
 					}
 				}
-				xyzMat = xyzBuffer.clone();
+				buffer.copyTo(xyzBuffer);
 			}
 		}
 	}

@@ -23,6 +23,7 @@ public:
 		}
 	}
 
+	//	デプスカメラ用
 	inline void generate16bitPalette()
 	{
 		std::vector<cv::Vec3b> baseColors;
@@ -32,8 +33,9 @@ public:
 		baseColors.push_back(cv::Vec3b(0, 128, 0));		//	green
 		baseColors.push_back(cv::Vec3b(128, 0, 0));		//	navy
 		baseColors.push_back(cv::Vec3b(255, 0, 0));		//	blue
+		baseColors.push_back(cv::Vec3b(255, 255, 0));	//	cyan
 		baseColors.push_back(cv::Vec3b(0, 255, 0));		//	lime
-		int anchor[7] = {0, 300, 600, 800, 1000, 2000, 65536};
+		int anchor[] = {0, 300, 600, 900, 1200, 1500, 2400, 65536};
 		generateColorTable(65536, baseColors, anchor);
 		resize(colorTable, miniColorTable, cv::Size(80, 320));
 	}

@@ -17,8 +17,9 @@ int main(void)
 	table.generate16bitPalette();
 	cv::imshow("Color Palette", table.miniColorTable);
 
-	pcl::visualization::CloudViewer viewer("Point Cloud");
+	//pcl::visualization::CloudViewer viewer("Point Cloud");
 
+	
 	while (1)
 	{
 		cv::Mat colorImg, depthMat, depthMatd, depthImg, depthError;
@@ -55,15 +56,16 @@ int main(void)
 			}
 		}
 		//	Point CloudÇÃï`âÊ
-		viewer.showCloud(pointcloud);
+		//viewer.showCloud(pointcloud);
 
 		//	ÉtÉåÅ[ÉÄÇÃï`âÊ
+		resize(colorImg, colorImg, cv::Size(), 0.5, 0.5);
 		cv::imshow("Color Image", colorImg);
 		cv::imshow("Depth Image", depthImg);
 		cv::imshow("Depth Error", depthError);
 
-
-		if (cv::waitKey(1) == VK_ESCAPE) break;
+		char c = cv::waitKey(1);
+		if (c == 'q' || c == VK_ESCAPE) break;
 	}
 	kinect.releaseAllInterface();
 }
