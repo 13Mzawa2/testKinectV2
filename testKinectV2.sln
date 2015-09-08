@@ -11,6 +11,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CoordinateMapping", "Coordi
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "testPCL", "testPCL\testPCL.vcxproj", "{06ED8D4C-1951-4E82-85C9-4182661A4AF0}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OBJTracking", "OBJTracking\OBJTracking.vcxproj", "{39EE2BA6-54A1-4E10-A6FB-6A75DD606836}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -33,6 +35,10 @@ Global
 		{06ED8D4C-1951-4E82-85C9-4182661A4AF0}.Debug|Win32.Build.0 = Debug|Win32
 		{06ED8D4C-1951-4E82-85C9-4182661A4AF0}.Release|Win32.ActiveCfg = Release|Win32
 		{06ED8D4C-1951-4E82-85C9-4182661A4AF0}.Release|Win32.Build.0 = Release|Win32
+		{39EE2BA6-54A1-4E10-A6FB-6A75DD606836}.Debug|Win32.ActiveCfg = Debug|Win32
+		{39EE2BA6-54A1-4E10-A6FB-6A75DD606836}.Debug|Win32.Build.0 = Debug|Win32
+		{39EE2BA6-54A1-4E10-A6FB-6A75DD606836}.Release|Win32.ActiveCfg = Release|Win32
+		{39EE2BA6-54A1-4E10-A6FB-6A75DD606836}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
