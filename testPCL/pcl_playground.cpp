@@ -17,7 +17,7 @@ int main(void)
 	table.generate16bitPalette();
 	cv::imshow("Color Palette", table.miniColorTable);
 
-	//pcl::visualization::CloudViewer viewer("Point Cloud");
+	pcl::visualization::CloudViewer viewer("Point Cloud");
 
 	
 	while (1)
@@ -56,7 +56,7 @@ int main(void)
 			}
 		}
 		//	Point Cloud‚Ì•`‰æ
-		//viewer.showCloud(pointcloud);
+		viewer.showCloud(pointcloud);
 
 		//	ƒtƒŒ[ƒ€‚Ì•`‰æ
 		resize(colorImg, colorImg, cv::Size(), 0.5, 0.5);

@@ -242,7 +242,7 @@ public:
 	inline void getXYZFrame(void)
 	{
 		cv::Mat buffer = cv::Mat(depthBuffer.size(), CV_32FC3);
-		if (!colorBuffer.empty() && !depthBuffer.empty())
+		if (!depthBuffer.empty())
 		{
 			std::vector<CameraSpacePoint> xyzPoints(depthBuffer.total());
 			if (SUCCEEDED(mapper->MapDepthFrameToCameraSpace(
