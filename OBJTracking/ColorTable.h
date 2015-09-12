@@ -12,6 +12,7 @@ public:
 	inline void lookup16UC1to8UC3(cv::Mat &src, cv::Mat &dst)
 	{
 		dst = cv::Mat(src.size(), CV_8UC3);
+#pragma omp parallel for
 		for (int j = 0; j < src.rows; j++)
 		{
 			for (int i = 0; i < src.cols; i++)
@@ -21,6 +22,7 @@ public:
 				dst.at<cv::Vec3b>(j, i)[2] = colorTable.at<cv::Vec3b>(src.at<UINT16>(j, i), 0)[2];
 			}
 		}
+		
 	}
 
 	//	デプスカメラ用

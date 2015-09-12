@@ -212,8 +212,10 @@ public:
 				depthBuffer.total(), &colorSpacePoints[0])))							//	depth -> color変換LUT
 			{
 				buffer = cv::Scalar(0);
+#pragma omp parallel for
 				for (int y = 0; y < depthBuffer.rows; y++)
 				{
+#pragma omp parallel for
 					for (int x = 0; x < depthBuffer.cols; x++)
 					{
 						unsigned int idx = y * depthBuffer.cols + x;
@@ -225,6 +227,7 @@ public:
 							buffer.at<cv::Vec4b>(idx) = colorBuffer.at<cv::Vec4b>(colorLoc);	//	LUTに従いバッファに保存
 					}
 				}
+				
 				buffer.copyTo(coordColorBuffer);
 			}
 		}
@@ -249,6 +252,7 @@ public:
 				depthBuffer.total(), reinterpret_cast<UINT16*>(depthBuffer.data),
 				depthBuffer.total(), &xyzPoints[0])))
 			{
+#pragma omp parallel for
 				for (int y = 0; y < depthBuffer.rows; y++)
 				{
 					for (int x = 0; x < depthBuffer.cols; x++)

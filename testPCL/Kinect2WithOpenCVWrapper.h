@@ -212,17 +212,25 @@ public:
 				depthBuffer.total(), &colorSpacePoints[0])))							//	depth -> color変換LUT
 			{
 				buffer = cv::Scalar(0);
-				for (int y = 0; y < depthBuffer.rows; y++)
+#ifdef _OPENMP
+#pragma omp parallel
+#endif
 				{
-					for (int x = 0; x < depthBuffer.cols; x++)
+#ifdef _OPENMP
+#pragma omp for schedule(dynamic, 1000)
+#endif
+					for (int y = 0; y < depthBuffer.rows; y++)
 					{
-						unsigned int idx = y * depthBuffer.cols + x;
-						cv::Point colorLoc(
-							static_cast<int>(floor(colorSpacePoints[idx].X + 0.5)),
-							static_cast<int>(floor(colorSpacePoints[idx].Y + 0.5)));		//	四捨五入のため0.5を足す
-						if (colorLoc.x >= 0 && colorLoc.x < colorBuffer.cols
-							&& colorLoc.y >= 0 && colorLoc.y < colorBuffer.rows)
-							buffer.at<cv::Vec4b>(idx) = colorBuffer.at<cv::Vec4b>(colorLoc);	//	LUTに従いバッファに保存
+						for (int x = 0; x < depthBuffer.cols; x++)
+						{
+							unsigned int idx = y * depthBuffer.cols + x;
+							cv::Point colorLoc(
+								static_cast<int>(floor(colorSpacePoints[idx].X + 0.5)),
+								static_cast<int>(floor(colorSpacePoints[idx].Y + 0.5)));		//	四捨五入のため0.5を足す
+							if (colorLoc.x >= 0 && colorLoc.x < colorBuffer.cols
+								&& colorLoc.y >= 0 && colorLoc.y < colorBuffer.rows)
+								buffer.at<cv::Vec4b>(idx) = colorBuffer.at<cv::Vec4b>(colorLoc);	//	LUTに従いバッファに保存
+						}
 					}
 				}
 				buffer.copyTo(coordColorBuffer);
@@ -249,14 +257,22 @@ public:
 				depthBuffer.total(), reinterpret_cast<UINT16*>(depthBuffer.data),
 				depthBuffer.total(), &xyzPoints[0])))
 			{
-				for (int y = 0; y < depthBuffer.rows; y++)
+#ifdef _OPENMP
+#pragma omp parallel
+#endif
 				{
-					for (int x = 0; x < depthBuffer.cols; x++)
+#ifdef _OPENMP
+#pragma omp for schedule(dynamic, 1000)
+#endif
+					for (int y = 0; y < depthBuffer.rows; y++)
 					{
-						int idx = y * depthBuffer.cols + x;
-						buffer.at<cv::Vec3f>(idx)[0] = xyzPoints[idx].X;
-						buffer.at<cv::Vec3f>(idx)[1] = xyzPoints[idx].Y;
-						buffer.at<cv::Vec3f>(idx)[2] = xyzPoints[idx].Z;
+						for (int x = 0; x < depthBuffer.cols; x++)
+						{
+							int idx = y * depthBuffer.cols + x;
+							buffer.at<cv::Vec3f>(idx)[0] = xyzPoints[idx].X;
+							buffer.at<cv::Vec3f>(idx)[1] = xyzPoints[idx].Y;
+							buffer.at<cv::Vec3f>(idx)[2] = xyzPoints[idx].Z;
+						}
 					}
 				}
 				buffer.copyTo(xyzBuffer);

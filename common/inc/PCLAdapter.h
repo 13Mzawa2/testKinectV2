@@ -46,13 +46,19 @@
 
 //	インクルード
 #pragma region Includes
-#include <pcl\point_types.h>
-#include <pcl\common\io.h>
-#include <pcl\io\pcd_io.h>
-#include <pcl\io\vtk_lib_io.h>
-#include <pcl\visualization\cloud_viewer.h>			//	PCLVisualizer
-#include <pcl\keypoints\harris_3d.h>				//	Harris特徴検出器
-#include <pcl\features\fpfh.h>
+#include <pcl\point_cloud.h>
+#include <pcl\point_types.h>		//	pcl::PointTなどの定義
+#include <pcl\common\io.h>			//	pcl::PointTなどのIO?
+#include <pcl\common\transforms.h>
+#include <pcl\io\pcd_io.h>			//	pcdデータの入出力
+#include <pcl\io\vtk_lib_io.h>		//	VTKモジュールの入出力（VTKモジュールに関連するヘッダを読み込む）
+#include <pcl\visualization\cloud_viewer.h>			//	Cloud Viewer
+#include <pcl\filters\approximate_voxel_grid.h>			//	Voxel Gridダウンサンプリングの高速化板
+#include <pcl\filters\statistical_outlier_removal.h>	//	Statistical Outlier Removal 統計的な外れ値の除去
+//#include <pcl/filters/radius_outlier_removal.h>			//	Radius Outlier Removal 近傍半径による外れ値の除去
+#include <pcl\segmentation\extract_clusters.h>
+#include <pcl\keypoints\harris_3d.h>				//	Harris特徴点検出器
+#include <pcl\features\fpfh_omp.h>						//	FPFH特徴量
 #include <pcl\features\normal_3d.h>
 #include <pcl/segmentation/sac_segmentation.h>		//	平面検出
 #pragma endregion
@@ -93,6 +99,7 @@
 #pragma comment(lib, "pcl_tracking"			PCL_EXT_STR)
 #pragma comment(lib, "pcl_visualization"	PCL_EXT_STR)
 #pragma endregion
+//	C++準標準ライブラリ（スマートポインタ，関数オブジェクト，スレッド，シグナル等）
 #pragma region LibBoost Linker Script
 #pragma comment(lib, "libboost_atomic"		PCL_BOOST_EXT_STR)
 #pragma comment(lib, "libboost_chrono"		PCL_BOOST_EXT_STR)
@@ -127,11 +134,13 @@
 #pragma comment(lib, "libboost_wave"		PCL_BOOST_EXT_STR)
 #pragma comment(lib, "libboost_wserialization"		PCL_BOOST_EXT_STR)
 #pragma endregion
+//	最近傍探索ライブラリ
 #pragma region FLANN Linker Script
 #pragma comment(lib, "flann"		PCL_FLANN_EXT_STR)
 #pragma comment(lib, "flann_s"		PCL_FLANN_EXT_STR)
 #pragma comment(lib, "flann_cpp_s"	PCL_FLANN_EXT_STR)
 #pragma endregion
+//	凸包，三角面化，ドロネー分割
 #pragma region QHull Linker Script
 #pragma comment(lib, "qhull"	PCL_QHULL_EXT_STR)
 #pragma comment(lib, "qhull_p"	PCL_QHULL_EXT_STR)
@@ -139,6 +148,7 @@
 #pragma comment(lib, "qhullstatic"	PCL_QHULL_EXT_STR)
 #pragma comment(lib, "qhullstatic_p"	PCL_QHULL_EXT_STR)
 #pragma endregion
+//	GUIツールキット
 #pragma region VTK Linker Script
 #pragma comment(lib, "vtkalglib"	PCL_VTK_EXT_STR)
 #pragma comment(lib, "vtkChartsCore"	PCL_VTK_EXT_STR)
