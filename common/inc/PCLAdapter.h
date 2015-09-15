@@ -53,14 +53,18 @@
 #include <pcl\io\pcd_io.h>			//	pcdデータの入出力
 #include <pcl\io\vtk_lib_io.h>		//	VTKモジュールの入出力（VTKモジュールに関連するヘッダを読み込む）
 #include <pcl\visualization\cloud_viewer.h>			//	Cloud Viewer
+#include <pcl\visualization\pcl_visualizer.h>		//	PCL Visualizer
 #include <pcl\filters\approximate_voxel_grid.h>			//	Voxel Gridダウンサンプリングの高速化板
 #include <pcl\filters\statistical_outlier_removal.h>	//	Statistical Outlier Removal 統計的な外れ値の除去
 //#include <pcl/filters/radius_outlier_removal.h>			//	Radius Outlier Removal 近傍半径による外れ値の除去
 #include <pcl\segmentation\extract_clusters.h>
 #include <pcl\keypoints\harris_3d.h>				//	Harris特徴点検出器
-#include <pcl\features\fpfh_omp.h>						//	FPFH特徴量
-#include <pcl\features\normal_3d.h>
+#include <pcl\features\fpfh_omp.h>					//	FPFH特徴量(OpenMPサポート)
+#include <pcl\features\normal_3d_omp.h>				//	法線推定(OpenMPサポート)
 #include <pcl/segmentation/sac_segmentation.h>		//	平面検出
+#include <pcl\registration\correspondence_rejection_sample_consensus.h>		//	対応点探索と除去
+#include <pcl\registration\icp.h>					//	ICPアルゴリズム
+#include <pcl\registration\transformation_estimation.h>			//	位置姿勢推定
 #pragma endregion
 // ビルドモード
 #pragma region Build Mode
