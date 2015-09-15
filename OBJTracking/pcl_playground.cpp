@@ -32,8 +32,8 @@ int main(void)
 	table.generate16bitPalette();
 	//cv::imshow("Color Palette", table.miniColorTable);
 
-	//pcl::visualization::CloudViewer viewer("Point Cloud");
-	pcl::visualization::PCLVisualizer viewer("Point Cloud");
+	pcl::visualization::CloudViewer viewer("Point Cloud");
+	//pcl::visualization::PCLVisualizer viewer("Point Cloud");
 
 	//	OBJファイルを読み込む
 	pcl::PolygonMesh::Ptr mesh(new pcl::PolygonMesh());
@@ -274,25 +274,47 @@ int main(void)
 			pcl::PointCloud<pcl::PointXYZ>::Ptr obj_transformed(new pcl::PointCloud<pcl::PointXYZ>());
 			pcl::transformPointCloud(*obj_filtered, *obj_transformed, initialTransMat);
 
+
+			//------------------------------------------
+			//	ICPアルゴリズムによる高精度位置合わせ
+			//------------------------------------------
+			pcl::IterativeClosestPoint<pcl::PointXYZ, pcl::PointXYZ>::Ptr icp(new pcl::IterativeClosestPoint<pcl::PointXYZ, pcl::PointXYZ>());
+			icp->setInputSource(obj_transformed);
+			icp->setInputTarget(cloud_filtered);
+			//icp->setTransformationEpsilon(1e-6);
+			//icp->setMaxCorrespondenceDistance(5.0f);
+			//icp->setMaximumIterations(200);
+			//icp->setEuclideanFitnessEpsilon(1.0f);
+			//icp->setRANSACOutlierRejectionThreshold(1.0);
+			pcl::PointCloud<pcl::PointXYZ>::Ptr obj_final(new pcl::PointCloud<pcl::PointXYZ>());
+			icp->align(*obj_final);
+
+			//pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> source_color(obj_transformed, 255, 255, 0);
+			//viewer.addPointCloud(obj_transformed, source_color, "transformed");
+			//viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "transformed");
+			if (icp->hasConverged())
+			{
+				pcl::transformPointCloud(*obj_transformed, *obj_final, icp->getFinalTransformation());
+				//pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> icp_color(obj_final, 255, 0, 0);
+				//viewer.addPointCloud(obj_final, icp_color, "final");
+				//viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "final");
+			}
 			
-			pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> source_color(obj_transformed, 255, 255, 0);
-			viewer.addPointCloud(obj_transformed, source_color, "transformed");
-			viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "transformed");
 
 		}
 
-			pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> field_color(cloud_filtered, 255, 0, 0);
-			viewer.addPointCloud<pcl::PointXYZ>(cloud_filtered, "cloud");
-			viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "cloud");
+			//pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> field_color(cloud_filtered, 255, 0, 255);
+			//viewer.addPointCloud<pcl::PointXYZ>(cloud_filtered, "cloud");
+			//viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "cloud");
 
-			pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> target_color(cloud_clustered, 0, 255, 255);
-			viewer.addPointCloud(cloud_clustered, "cluster");
-			viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "cluster");
+			//pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> target_color(cloud_clustered, 0, 255, 255);
+			//viewer.addPointCloud(cloud_clustered, "cluster");
+			//viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "cluster");
 
-			viewer.spinOnce();
-			viewer.removeAllPointClouds();
+			//viewer.spinOnce();
+			//viewer.removeAllPointClouds();
 
-		//viewer.showCloud(keypoints);
+		viewer.showCloud(cloud_clustered);
 
 		//	Point Cloudの描画
 		//viewer.showCloud(pointcloud);
