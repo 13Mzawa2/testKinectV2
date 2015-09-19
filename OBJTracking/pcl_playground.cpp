@@ -32,8 +32,8 @@ int main(void)
 	table.generate16bitPalette();
 	//cv::imshow("Color Palette", table.miniColorTable);
 
-	pcl::visualization::CloudViewer viewer("Point Cloud");
-	//pcl::visualization::PCLVisualizer viewer("Point Cloud");
+	//pcl::visualization::CloudViewer viewer("Point Cloud");
+	pcl::visualization::PCLVisualizer viewer("Point Cloud");
 
 	//	OBJファイルを読み込む
 	pcl::PolygonMesh::Ptr mesh(new pcl::PolygonMesh());
@@ -160,7 +160,7 @@ int main(void)
 		//	平面除去
 		pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_segmented(new pcl::PointCloud<pcl::PointXYZ>());
 		removePlane(cloud_filtered, cloud_segmented, 0.02f);
-		removePlane(cloud_segmented, cloud_segmented, 0.03f);
+		//removePlane(cloud_segmented, cloud_segmented, 0.03f);
 		//removePlane(cloud_segmented, cloud_segmented, 0.04f);
 
 		////	外れ値の除去(Statistical)
@@ -181,7 +181,7 @@ int main(void)
 		pcl::EuclideanClusterExtraction<pcl::PointXYZ> clustering;
 		clustering.setClusterTolerance(0.02);
 		clustering.setMinClusterSize(1000);
-		clustering.setMaxClusterSize(1700);
+		clustering.setMaxClusterSize(3400);
 		clustering.setSearchMethod(tree);
 		clustering.setInputCloud(cloud_segmented);
 		clustering.extract(cluster_indeces);
@@ -289,32 +289,32 @@ int main(void)
 			pcl::PointCloud<pcl::PointXYZ>::Ptr obj_final(new pcl::PointCloud<pcl::PointXYZ>());
 			icp->align(*obj_final);
 
-			//pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> source_color(obj_transformed, 255, 255, 0);
-			//viewer.addPointCloud(obj_transformed, source_color, "transformed");
-			//viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "transformed");
+			pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> source_color(obj_transformed, 255, 255, 0);
+			viewer.addPointCloud(obj_transformed, source_color, "transformed");
+			viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "transformed");
 			if (icp->hasConverged())
 			{
 				pcl::transformPointCloud(*obj_transformed, *obj_final, icp->getFinalTransformation());
-				//pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> icp_color(obj_final, 255, 0, 0);
-				//viewer.addPointCloud(obj_final, icp_color, "final");
-				//viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "final");
+				pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> icp_color(obj_final, 255, 0, 0);
+				viewer.addPointCloud(obj_final, icp_color, "final");
+				viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "final");
 			}
 			
 
 		}
 
-			//pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> field_color(cloud_filtered, 255, 0, 255);
-			//viewer.addPointCloud<pcl::PointXYZ>(cloud_filtered, "cloud");
-			//viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "cloud");
+			pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> field_color(cloud_segmented, 255, 255, 255);
+			viewer.addPointCloud<pcl::PointXYZ>(cloud_segmented, field_color, "cloud");
+			viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "cloud");
 
-			//pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> target_color(cloud_clustered, 0, 255, 255);
-			//viewer.addPointCloud(cloud_clustered, "cluster");
-			//viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "cluster");
+			pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> target_color(cloud_clustered, 0, 255, 255);
+			viewer.addPointCloud(cloud_clustered, target_color, "cluster");
+			viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "cluster");
 
-			//viewer.spinOnce();
-			//viewer.removeAllPointClouds();
+			viewer.spinOnce();
+			viewer.removeAllPointClouds();
 
-		viewer.showCloud(cloud_clustered);
+		//viewer.showCloud(cloud_clustered);
 
 		//	Point Cloudの描画
 		//viewer.showCloud(pointcloud);
