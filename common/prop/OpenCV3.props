@@ -4,7 +4,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <IncludePath>C:\opencv3\build\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\opencv3\build\x86\vc12\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>C:\opencv3\build\x86\vc12\lib;C:\opencv3\build\x86\vc12\staticlib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup />
   <ItemGroup />

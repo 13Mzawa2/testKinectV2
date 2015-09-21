@@ -160,7 +160,7 @@ int main(void)
 		//	平面除去
 		pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_segmented(new pcl::PointCloud<pcl::PointXYZ>());
 		removePlane(cloud_filtered, cloud_segmented, 0.02f);
-		//removePlane(cloud_segmented, cloud_segmented, 0.03f);
+		removePlane(cloud_segmented, cloud_segmented, 0.03f);
 		//removePlane(cloud_segmented, cloud_segmented, 0.04f);
 
 		////	外れ値の除去(Statistical)
@@ -174,28 +174,28 @@ int main(void)
 		//sor.filter(*cloud_removed);
 
 
-		//	クラスタリング
-		pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_clustered(new pcl::PointCloud<pcl::PointXYZ>());
-		pcl::search::KdTree<pcl::PointXYZ>::Ptr tree(new pcl::search::KdTree<pcl::PointXYZ>());
-		std::vector<pcl::PointIndices> cluster_indeces;
-		pcl::EuclideanClusterExtraction<pcl::PointXYZ> clustering;
-		clustering.setClusterTolerance(0.02);
-		clustering.setMinClusterSize(1000);
-		clustering.setMaxClusterSize(3400);
-		clustering.setSearchMethod(tree);
-		clustering.setInputCloud(cloud_segmented);
-		clustering.extract(cluster_indeces);
+		////	クラスタリング
+		//pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_clustered(new pcl::PointCloud<pcl::PointXYZ>());
+		//pcl::search::KdTree<pcl::PointXYZ>::Ptr tree(new pcl::search::KdTree<pcl::PointXYZ>());
+		//std::vector<pcl::PointIndices> cluster_indeces;
+		//pcl::EuclideanClusterExtraction<pcl::PointXYZ> clustering;
+		//clustering.setClusterTolerance(0.02);
+		//clustering.setMinClusterSize(1000);
+		//clustering.setMaxClusterSize(3400);
+		//clustering.setSearchMethod(tree);
+		//clustering.setInputCloud(cloud_segmented);
+		//clustering.extract(cluster_indeces);
 
-		if (cluster_indeces.size() > 0)
-		{
-			cout << "clusters: " << cluster_indeces.size() << ", Max cluster size: " << cluster_indeces[0].indices.size() << "\n";
-			pcl::ExtractIndices<pcl::PointXYZ> extract;
-			extract.setInputCloud(cloud_segmented);
-			pcl::IndicesPtr indices(new std::vector<int>);
-			*indices = cluster_indeces[0].indices;
-			extract.setIndices(indices);
-			extract.setNegative(false);
-			extract.filter(*cloud_clustered);
+		//if (cluster_indeces.size() > 0)
+		//{
+		//	cout << "clusters: " << cluster_indeces.size() << ", Max cluster size: " << cluster_indeces[0].indices.size() << "\n";
+		//	pcl::ExtractIndices<pcl::PointXYZ> extract;
+		//	extract.setInputCloud(cloud_segmented);
+		//	pcl::IndicesPtr indices(new std::vector<int>);
+		//	*indices = cluster_indeces[0].indices;
+		//	extract.setIndices(indices);
+		//	extract.setNegative(false);
+		//	extract.filter(*cloud_clustered);
 
 			//------------------------------------------
 			//	Kinectデータから特徴量を計算
@@ -205,8 +205,8 @@ int main(void)
 			//	PointXYZからNormal及びPointNormalを生成
 			pcl::PointCloud<pcl::Normal>::Ptr normals(new pcl::PointCloud<pcl::Normal>());		//	法線のみ
 			pcl::PointCloud<pcl::PointNormal>::Ptr cloud_normals(new pcl::PointCloud<pcl::PointNormal>());	//	3次元点群 + 推定された法線
-			addNormal(cloud_clustered, normals, 0.01f);
-			pcl::concatenateFields(*cloud_clustered, *normals, *cloud_normals);
+			addNormal(cloud_segmented, normals, 0.01f);
+			pcl::concatenateFields(*cloud_segmented, *normals, *cloud_normals);
 
 			//	Harris特徴点検出器
 			//	PointNormalからPointXYZIを生成
@@ -219,7 +219,7 @@ int main(void)
 
 			//	特徴点周りのFPFH特徴量の計算
 			pcl::PointCloud<pcl::FPFHSignature33>::Ptr features(new pcl::PointCloud<pcl::FPFHSignature33>());		//	FPFH特徴量
-			getFPFHSignatureAtKeypoints(cloud_clustered, kpts, normals, features, 0.04f);
+			getFPFHSignatureAtKeypoints(cloud_segmented, kpts, normals, features, 0.04f);
 		
 
 			//------------------------------------------
@@ -301,15 +301,15 @@ int main(void)
 			}
 			
 
-		}
+		//}
 
 			pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> field_color(cloud_segmented, 255, 255, 255);
 			viewer.addPointCloud<pcl::PointXYZ>(cloud_segmented, field_color, "cloud");
 			viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "cloud");
 
-			pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> target_color(cloud_clustered, 0, 255, 255);
-			viewer.addPointCloud(cloud_clustered, target_color, "cluster");
-			viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "cluster");
+			//pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> target_color(cloud_clustered, 0, 255, 255);
+			//viewer.addPointCloud(cloud_clustered, target_color, "cluster");
+			//viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "cluster");
 
 			viewer.spinOnce();
 			viewer.removeAllPointClouds();
